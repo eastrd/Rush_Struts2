@@ -18,6 +18,7 @@ Declearation:
   
   “双刃剑可亦正亦邪”
   -苍冥
+  
 
 This script is still in development...
 工具还在开发中，别急，反正我不急。
