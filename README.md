@@ -6,6 +6,8 @@ A CUI Struts2 Vulnerability Exploit
 
 Made By 苍冥
 
+特别感谢WP团队的太子、哈喽、以及其他给我提建议的小伙伴们
+
 Belongs to WindPunish Team
 
 WindPunish团队所有
