@@ -8,9 +8,11 @@ Made By 苍冥
 
 特别感谢WP团队的太子、哈喽、以及其他给我提建议的小伙伴们
 
+
 Belongs to WindPunish Team
 
 WindPunish团队所有
+
 
 Declearation:
 	This script is to examine the Struts2 vulnerability of YOUR SITE,
