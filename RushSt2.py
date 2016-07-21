@@ -1,4 +1,14 @@
 '''
+Made By 苍冥
+Belongs to WindPunish Team
+
+Declearation:
+	This script is to examine the Struts2 vulnerability of YOUR SITE,
+	I will not take responsibility for the abuse of this script.
+	If you misuse it, then that's your problem.
+
+This script is still in development...
+
 RushSt2.py -u www.abcdefg.com/login.action
 RushSt2.py -f url_list.txt
 RushSt2.py -u www.abcdefg.com/login.action -e S2-016
@@ -29,22 +39,27 @@ def PoC_POST(TargetURL, ExpVersion):
 	pass
 
 def PoC_Sniper(TargetURL, ExpVersion, HTTPMethod):
-	print("PoCing...")
+	#Sniper single St2 Vulnerability
+	print("Testing %s ..." %(ExpVersion))
 	if HTTPMethod == "GET":
 		return PoC_GET(TargetURL, ExpVersion)
 	else:
 		return PoC_POST(TargetURL, ExpVersion)
 
-def PoC_Scan(TargetURL, HTTPMethod):
-	ExpResult = {}
+def PoC_Scan_All(TargetURL, HTTPMethod):
+	#Scan for All St2 Vulnerabilities
+	ExpResultDict = {}
 	for exp in ExpList:
-		ExpResult[exp] = len(PoC_Sniper(TargetURL, exp, HTTPMethod))
-	return ExpResult
+		ExpResultDict[exp] = len(PoC_Sniper(TargetURL, exp, HTTPMethod))
+	print("\n")
+	return ExpResultDict
 
 def exploit(TargetURL, ExpVersion, HTTPMethod):
 	if ExpVersion == "ALL":
 		#PoC Scan for all vulnerabilities
-		print(PoC_Scan(TargetURL, HTTPMethod))
+		ExpResultDict = PoC_Scan_All(TargetURL, HTTPMethod)
+		for Exp in ExpResultDict:
+			print("%s : %s" %(Exp, ExpResultDict[Exp]))
 	else:
 		#Pre-defined exploit
 		print(PoC_Sniper(TargetURL, ExpVersion, HTTPMethod))
@@ -85,6 +100,8 @@ if __name__ == "__main__":
 		exit()
 
 
-	print("All Set:\n\tTarget URL:\t%s\n\tHTTP Method:\t%s\n\tExploit:\t%s\n\tAttack Vector:\t%s" %(TargetURL,HTTPMethod,ExpVersion,AttackVector))
+	print("\nAll Set:\n\tTarget URL:\t%s\n\tHTTP Method:\t%s\n\tExploit:\t%s\n\n" %(TargetURL,HTTPMethod,ExpVersion))
 
 	exploit(TargetURL, ExpVersion, HTTPMethod)
+
+	print("\n"*2)
